@@ -1,0 +1,17 @@
+2
+100
+7
+Allocate 20
+Allocate 50
+Allocate 20
+Allocate 5
+Free 20
+Free 0
+Free 70
+20
+5
+Allocate 10
+Allocate 20
+Free 50
+Free 0
+Free 10
