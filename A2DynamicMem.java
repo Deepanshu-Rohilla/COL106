@@ -16,6 +16,8 @@ public class A2DynamicMem extends A1DynamicMem {
     //Your BST (and AVL tree) implementations should obey the property that keys in the left subtree <= root.key < keys in the right subtree. How is this total order between blocks defined? It shouldn't be a problem when using key=address since those are unique (this is an important invariant for the entire assignment123 module). When using key=size, use address to break ties i.e. if there are multiple blocks of the same size, order them by address. Now think outside the scope of the allocation problem and think of handling tiebreaking in blocks, in case key is neither of the two.
 
     public int Allocate(int blockSize) {
+        // Time Complexity:  O(h) 
+        // Space Complexity: O(1) 
         if(blockSize<=0){
             return -1;
         }
@@ -41,6 +43,8 @@ public class A2DynamicMem extends A1DynamicMem {
     } 
     
     public int Free(int startAddr){
+        // Time Complexity:  O(h) 
+        // Space Complexity: O(1) 
         if(startAddr<0){
             return -1;
         }
@@ -58,16 +62,6 @@ public class A2DynamicMem extends A1DynamicMem {
 
     // Helper function to print values of allocBlk and FreeBlk
     public void print(){
-        if(this.type==1){
-            A1List allocBlk = (A1List) this.allocBlk; // typecasting Dictionary => A1List
-            A1List freeBlk = (A1List) this.freeBlk; // typecasting Dictionary => A1List
-            System.out.print("Allocated Block Starts: ");
-            allocBlk.print();
-            System.out.print("Free Block Starts: ");
-            freeBlk.print();
-            System.out.println();
-        }
-        else if(this.type==2){
             BSTree allocBlk = (BSTree) this.allocBlk;// typecasting Dictionary => BSTree
             BSTree freeBlk = (BSTree) this.freeBlk; // typecasting Dictionary => BSTree
             System.out.print("Allocated Block Starts: ");
@@ -79,11 +73,12 @@ public class A2DynamicMem extends A1DynamicMem {
             freeBlk.printInorder();
             System.out.println();
             System.out.println();
-        }
         
     } 
     public void Defragment() {
-
+        // Time Complexity:  O(n*h) 
+        // Space Complexity: O(1) 
+        // If type is of BSTree
         if(type==2){
             BSTree defrag = new BSTree();
             BSTree freeBlk = (BSTree) this.freeBlk; // typecasting Dictionary => BSTree
@@ -108,6 +103,37 @@ public class A2DynamicMem extends A1DynamicMem {
                     this.freeBlk.Insert(temp.address,temp.size+temp2.size,temp.size+temp2.size);
                     temp.size = temp.size + temp2.size;
                     BSTree d3 = new BSTree(temp2.address,temp2.size,temp2.address);
+                    defrag.Delete(d3);
+                }
+                else{ // else go to next value
+                    temp = temp2;
+                }
+            }
+        }
+        else if(type==3){
+            AVLTree defrag = new AVLTree();
+            AVLTree freeBlk = (AVLTree) this.freeBlk; // typecasting Dictionary => BSTree
+            AVLTree temp = freeBlk.getFirst();
+            // Develop the tree indexed by address.
+            while(temp!=null){
+                defrag.Insert(temp.address,temp.size,temp.address);
+                temp = temp.getNext();
+            }
+
+            temp = defrag.getFirst();
+            while(temp!=null){
+                AVLTree temp2 = temp.getNext();
+                if(temp2==null){ // If next is null, exit the method
+                    return;
+                }
+                else if(temp.address + temp.size==temp2.address){ // If the two blocks are contiguous, merge them
+                    AVLTree d1 = new AVLTree(temp.address,temp.size,temp.size);
+                    AVLTree d2 = new AVLTree(temp2.address,temp2.size,temp2.size);
+                    this.freeBlk.Delete(d1);
+                    this.freeBlk.Delete(d2);
+                    this.freeBlk.Insert(temp.address,temp.size+temp2.size,temp.size+temp2.size);
+                    temp.size = temp.size + temp2.size;
+                    AVLTree d3 = new AVLTree(temp2.address,temp2.size,temp2.address);
                     defrag.Delete(d3);
                 }
                 else{ // else go to next value

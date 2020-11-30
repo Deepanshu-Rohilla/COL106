@@ -8,7 +8,7 @@ public abstract class Tree extends Dictionary {
     private Tree left, right;     // Children. Null if leaf node
     private Tree parent;          // Parent pointer. Null for sentinel root node.
 
-    public Tree() { 
+    public Tree(){ 
         super(-1, -1, -1);
         this.left = null;
         this.right = null;
