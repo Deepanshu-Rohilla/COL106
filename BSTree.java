@@ -389,7 +389,7 @@ public class BSTree extends Tree {
                 }
             }
             if(temp.right!=null){
-                if(temp.right.key<=temp.key){ // Key in left should not be less than or equal to key in the node.
+                if(temp.right.key<temp.key){ // Key in left should not be less than or equal to key in the node.
                     return false;
                 }
             }
@@ -398,7 +398,7 @@ public class BSTree extends Tree {
 
 
 
-        return false;
+        return true;
     }
 
 }

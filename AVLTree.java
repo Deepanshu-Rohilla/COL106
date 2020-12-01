@@ -27,8 +27,10 @@ public class AVLTree extends BSTree {
     // You need not implement all the functions. 
     // Some of the functions may be directly inherited from the BSTree class and nothing needs to be done for those.
     // Remove the functions, to not override the inherited functions.
+    
 
 
+    // A function to print inorder traversal of BST
     public void printInorder(){
         System.out.println("INORDER TRAVERSAL STARTS");
         inorder(this.getRoot());
@@ -68,10 +70,6 @@ public class AVLTree extends BSTree {
         // Space Complexity: O(1) 
 
         AVLTree temp = this;
-        if(temp==null){
-            System.out.println("Value to null nikli");
-            return;
-        }
         System.out.print('(');
         System.out.print(temp.address);
         System.out.print(',');
@@ -79,10 +77,11 @@ public class AVLTree extends BSTree {
         System.out.print(',');
         System.out.print(temp.key);
         System.out.print(')');
-        System.out.print(" with height ");
-        System.out.println(height(temp));
+        System.out.print(" with height");
+        System.out.println(height(this));
     }
-    
+
+
     public AVLTree Insert(int address, int size, int key){ 
         AVLTree temp = this.getRoot();
         AVLTree newNode = new AVLTree(address,size,key);
@@ -140,128 +139,199 @@ public class AVLTree extends BSTree {
                 }
             }
         }
-        newNode.height = 1;
-        temp.height = 1 + max(height(temp.left),height(temp.right));
-        checkBalance(temp);
-        return newNode;
+        
+        newNode.height = 1; // Assign leaf a height of 1
+        int heightL = height(temp.left);
+        int heightR = height(temp.right);
+        // Set the height of parent of node inserted
+        if(heightL>heightR){ 
+            temp.height  = heightL + 1;
+        }
+        else{
+            temp.height = heightR + 1;
+        }
+        // check the balacing property of the tree 
+        temp.checkBalance();
+        return newNode; // Return the node inserted
     }
 
-    public void incrementHeight(AVLTree node){
-        if(node.parent==null){
+
+
+    // A function to increase the height of the nodes in the chain of inserted node up till the root
+    public void incrementHeight(){
+        if(this.parent==null){
             return;
         }
-        node.height = 1 + max(height(node.left),height(node.right));
-        incrementHeight(node.parent);
-    }
 
-    public void checkBalance(AVLTree node){
-        if(node.parent==null){
+        int heightL = height(this.left);
+        int heightR = height(this.right);
+        if(heightL>heightR){
+            this.height  = heightL + 1;
+        }
+        else{
+            this.height = heightR + 1;
+        }
+        this.parent.incrementHeight();
+    }
+    
+
+
+
+    // A function to check the balacing property after insertion and deletion
+    public void checkBalance(){
+        if(this.parent==null){
             return;
         }
-        if((height(node.left) - height(node.right)>1) ||(height(node.left) - height(node.right)<-1)){
-            rebalance(node);
+        if((height(this.left) - height(this.right)>1) ||(height(this.left) - height(this.right)<-1)){
+            this.rebalance();
         }
-        node.height = 1 + max(height(node.left),height(node.right));
-        checkBalance(node.parent);
+
+        int heightL = height(this.left);
+        int heightR = height(this.right);
+        if(heightL>heightR){
+            this.height  = heightL + 1;
+        }
+        else{
+            this.height = heightR + 1;
+        }
+        this.parent.checkBalance();
     }
 
-    public void rebalance(AVLTree node){
-        // System.out.println("Entered in rebalancing");
-        // node.printNode();
+
+
+    // Rebalance the node on which this function is called by performing rotations
+    public void rebalance(){    
+        AVLTree node = this;
         if(height(node.left) - height(node.right)>1){
             if(height(node.left.left)>height(node.left.right)){
-                node = rightRotate(node);
+                node = node.rightRotate();
             }
             else{
-                node = leftRightRotate(node);
+                node = node.leftRightRotate();
             }
         }
         else{
             if(height(node.right.right)>height(node.right.left)){
-                node = leftRotate(node);
+                node = node.leftRotate();
             }
             else{
-                node = rightLeftRotate(node);
+                node = node.rightLeftRotate();
             }
         }
     }
 
-    public AVLTree rightRotate(AVLTree temp) { 
-        // System.out.print("Right rotating");
-        // temp.printNode();
-        AVLTree temp2 = temp.left; 
+
+
+    // A helper function to right rotate a node
+    public AVLTree rightRotate() { 
+        AVLTree temp2 = this.left; 
         AVLTree temp2R = temp2.right; 
   
         // Perform rotation 
 
-        temp2.parent = temp.parent;
-        if(temp.parent.right==temp){
-            temp.parent.right=temp2;
+        temp2.parent = this.parent;
+        if(this.parent.right==this){
+            this.parent.right=temp2;
         }
         else{
-            temp.parent.left=temp2;
+            this.parent.left=temp2;
         }
 
-        temp.parent = temp2;
+        this.parent = temp2;
 
-        temp2.right = temp; 
+        temp2.right = this; 
 
-        temp.left = temp2R; 
+        this.left = temp2R; 
         if(temp2R!=null){
-            temp2R.parent = temp;
+            temp2R.parent = this;
         }
-  
-        // Update heights 
-        temp.height = max(height(temp.left), height(temp.right)) + 1; 
-        temp2.height = max(height(temp2.left), height(temp2.right)) + 1; 
+
+        int heightL = height(this.left);
+        int heightR = height(this.right);
+        if(heightL>heightR){
+            this.height  = heightL + 1;
+        }
+        else{
+            this.height = heightR + 1;
+        }
+
+        int heightL2 = height(temp2.left);
+        int heightR2 = height(temp2.right);
+        if(heightL2>heightR2){
+            temp2.height  = heightL2 + 1;
+        }
+        else{
+            temp2.height = heightR2 + 1;
+        } 
   
         // Return new root 
         return temp2; 
     } 
+
+
   
-    // A utility function to left rotate subtree rooted with x 
-    // See the diagram given above. 
-    public AVLTree leftRotate(AVLTree temp) { 
-        // System.out.print("Left rotating");
-        // temp.printNode();
-        AVLTree temp2 = temp.right; 
+    // A helper function to left rotate a node
+    public AVLTree leftRotate() { 
+        AVLTree temp2 = this.right; 
         AVLTree temp2L = temp2.left; 
   
         // Perform rotation 
-        temp2.parent = temp.parent; 
-        if(temp.parent.right==temp){
-            temp.parent.right=temp2;
+        temp2.parent = this.parent; 
+        if(this.parent.right==this){
+            this.parent.right=temp2;
         }
         else{
-            temp.parent.left=temp2;
+            this.parent.left=temp2;
         }
-        temp.parent = temp2;
-        temp2.left=temp;
-        temp.right = temp2L;
+        this.parent = temp2;
+        temp2.left=this;
+        this.right = temp2L;
         if(temp2L!=null){
-            temp2L.parent = temp; 
+            temp2L.parent = this; 
         }
-        //  Update heights 
-        temp.height = max(height(temp.left), height(temp.right)) + 1; 
-        temp2.height = max(height(temp2.left), height(temp2.right)) + 1; 
-  
-        // Return new root 
+
+
+        int heightL = height(this.left);
+        int heightR = height(this.right);
+        if(heightL>heightR){
+            this.height  = heightL + 1;
+        }
+        else{
+            this.height = heightR + 1;
+        }
+
+        int heightL2 = height(temp2.left);
+        int heightR2 = height(temp2.right);
+        if(heightL2>heightR2){
+            temp2.height  = heightL2 + 1;
+        }
+        else{
+            temp2.height = heightR2 + 1;
+        } 
         return temp2; 
     } 
 
-    public AVLTree leftRightRotate(AVLTree x){
-        // System.out.print("Left Right rotating");
-        // x.printNode();
-        x.left = leftRotate(x.left); 
-        return rightRotate(x);
+    // A helper function to left-right rotate a node
+    public AVLTree leftRightRotate(){
+        this.left = this.left.leftRotate(); 
+        return this.rightRotate();
 
     }
-    public AVLTree rightLeftRotate(AVLTree x){
-        // System.out.print("Right Left rotating");
-        // x.printNode();
-        x.right = rightRotate(x.right); 
-        return leftRotate(x); 
+
+
+
+
+
+    // A helper function to right-left rotate a node
+    public AVLTree rightLeftRotate(){
+        this.right = this.right.rightRotate(); 
+        return this.leftRotate(); 
     }
+
+
+
+
+    // A functio to return the height of a nodeq
     int height(AVLTree node) { 
         if (node == null) 
             return 0; 
@@ -269,11 +339,8 @@ public class AVLTree extends BSTree {
         return node.height; 
     } 
   
-    // A utility function to get maximum of two integers 
-    int max(int a, int b) { 
-        return (a > b) ? a : b; 
-    } 
 
+    // Method to delete a node from tree
     public boolean Delete(Dictionary e){
         AVLTree temp = this.getRoot().right;
         while(temp!=null){
@@ -288,7 +355,7 @@ public class AVLTree extends BSTree {
                         temp.parent.right=null;
                         temp.parent=null;
                     }
-                    checkBalance(t1);
+                    t1.checkBalance();
                     return true;
                 }
                 else if (temp.left==null || temp.right==null){ // If node to be deleted has exactly one child
@@ -311,7 +378,7 @@ public class AVLTree extends BSTree {
                         }
                         temp.left.parent = temp.parent;
                     }
-                    checkBalance(t1);
+                    t1.checkBalance();
                     return true;
                 }
                 else{ // Node has 2 children. We will copy the successor detail and delete the successor instead
@@ -330,7 +397,7 @@ public class AVLTree extends BSTree {
                             successor.parent.right=null;
                             successor.parent=null;
                         }
-                        checkBalance(t1);
+                        t1.checkBalance();
                     }
                     else{
                         AVLTree t1 = successor.parent;
@@ -352,7 +419,7 @@ public class AVLTree extends BSTree {
                             }
                             successor.left.parent = successor.parent;
                         }
-                        checkBalance(t1);
+                        t1.checkBalance();
                     }
                     temp.address=a;
                     temp.size=s;
@@ -379,10 +446,10 @@ public class AVLTree extends BSTree {
         }
         return false; // If element not found, return false
     }
+
+
         
     public AVLTree Find(int key, boolean exact){
-        // Time Complexity:  O(h) 
-        // Space Complexity: O(1) 
         if(exact){
             AVLTree temp = this.getRoot().right;
             while(temp!=null){
@@ -468,9 +535,56 @@ public class AVLTree extends BSTree {
         return temp;
     }
 
-    public boolean sanity()
-    { 
-        return false;
+    public boolean sanity(){ 
+        // Inorder traversal should be 
+        AVLTree temp = this.getFirst();
+        while(temp!=null){ 
+            AVLTree temp2 = temp.getNext();
+            if(temp2==null){
+                break;
+            }
+            if(temp2.key<temp.key){
+                return false;
+            }
+            temp = temp2;
+        } 
+
+        // For every node, node.left.parent and node.left.parent should be the node itself.
+        temp = this.getFirst();
+        while(temp!=null){ 
+            if(temp.left!=null){
+                if(temp.left.parent!=temp){
+                    return false;
+                }
+            }
+            if(temp.right!=null){
+                if(temp.right.parent!=temp){
+                    return false;
+                }
+            }
+
+            // Checking if search property is maintained
+            if(temp.left!=null){
+                if(temp.left.key>temp.key){ // Key in left should not be larger than key in the node.
+                    return false;
+                }
+            }
+            if(temp.right!=null){
+                if(temp.right.key<temp.key){ // Key in left should not be less than or equal to key in the node.
+                    return false;
+                }
+            }
+
+            // Checking the height balancing property for each node
+            if(temp.parent!=null &&( height(temp.left)-height(temp.right)>1 && height(temp.left)-height(temp.right)<-1)){
+                return false;
+            }
+
+            temp = temp.getNext();
+        } 
+        
+
+        return true;
     }
 }
 
