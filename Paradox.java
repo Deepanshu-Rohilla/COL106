@@ -7,7 +7,7 @@ public class Paradox{
 	public static boolean allDistinct(int[] a){
 		int n = a.length;
 		for(int i=0;i<n;i++){
-			for(int j=i;j<n;j++){
+			for(int j=i+1;j<n;j++){
 				if(a[i]==a[j]){
 					return false;
 				}
